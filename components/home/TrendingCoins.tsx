@@ -2,24 +2,23 @@ import React from "react";
 import { fetcher } from "@/lib/coingecko.actions";
 import Link from "next/link";
 import Image from "next/image";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, formatPercentage } from "@/lib/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import DataTable from "@/components/DataTable";
-import {TrendingCoinsFallback} from "@/components/home/fallback";
+import { TrendingCoinsFallback } from "@/components/home/fallback";
 
 const TrendingCoins = async () => {
   let trendingCoins;
-  try{
+  try {
     trendingCoins = await fetcher<{ coins: TrendingCoin[] }>(
-        "search/trending",
-        undefined,
-        300,
+      "search/trending",
+      undefined,
+      300,
     );
-  }catch(error){
+  } catch (error) {
     console.error("Error fetching trending coins:", error);
-    return <TrendingCoinsFallback/>
+    return <TrendingCoinsFallback />;
   }
-
 
   const columns: DataTableColumn<TrendingCoin>[] = [
     {
@@ -48,13 +47,13 @@ const TrendingCoins = async () => {
               isTrendingUp ? "text-green-500" : "text-red-500",
             )}
           >
-            <p>
+            <p className="flex items-center">
+              {formatPercentage(item.data.price_change_percentage_24h.usd)}
               {isTrendingUp ? (
                 <TrendingUp width={16} height={16} />
               ) : (
                 <TrendingDown width={16} height={16} />
               )}
-              {Math.abs(item.data.price_change_percentage_24h.usd).toFixed(2)}%
             </p>
           </div>
         );
@@ -70,7 +69,7 @@ const TrendingCoins = async () => {
   return (
     <div id="trending-coins">
       <h4>Trending Coins</h4>
-      <div id="trending-coins">
+      <div>
         <DataTable
           columns={columns}
           data={trendingCoins.coins.slice(0, 6) || []}
